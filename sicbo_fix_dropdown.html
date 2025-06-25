@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>🎲 Sicbo Game Lengkap</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #232526, #414345);
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 { font-size: 36px; }
+    .coin { font-size: 20px; margin-bottom: 10px; color: #ffd700; }
+    .dice { font-size: 60px; margin: 20px; }
+    .result { font-size: 22px; color: #ffcc00; margin-top: 20px; }
+
+    select, input[type=number], button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      margin: 8px;
+    }
+
+    button {
+      background-color: #00c9a7;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover { background-color: #00b38f; }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 Sicbo Game</h1>
+  <div class="coin">💰 Koin: <span id="koin">100</span></div>
+
+  <div>
+    <label for="jenis">Jenis Tebakan:</label>
+    <select id="jenis" onchange="updateOpsi()">
+      <option value="besar-kecil">Besar / Kecil</option>
+      <option value="ganjil-genap">Ganjil / Genap</option>
+      <option value="angka">Tebak Angka (3–18)</option>
+    </select>
+  </div>
+
+  <div id="opsi-select">
+    <select id="opsi">
+      <option value="besar">Besar (11-18)</option>
+      <option value="kecil">Kecil (3-10)</option>
+    </select>
+  </div>
+
+  <div id="opsi-angka" style="display: none;">
+    <input type="number" id="angka" min="3" max="18" placeholder="Masukkan angka 3-18">
+  </div>
+
+  <div>
+    <div class="dice" id="dadu1">⚀</div>
+    <div class="dice" id="dadu2">⚀</div>
+    <div class="dice" id="dadu3">⚀</div>
+  </div>
+
+  <button onclick="lemparDadu()">Lempar Dadu</button>
+  <div class="result" id="hasil"></div>
+
+  <script>
+    const simbolDadu = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    let koin = 100;
+
+    function updateOpsi() {
+      const jenis = document.getElementById("jenis").value;
+      const opsiSelect = document.getElementById("opsi-select");
+      const opsiDropdown = document.getElementById("opsi");
+      const opsiAngka = document.getElementById("opsi-angka");
+
+      if (jenis === "besar-kecil") {
+        opsiSelect.style.display = "block";
+        opsiAngka.style.display = "none";
+        opsiDropdown.innerHTML = `
+          <option value="besar">Besar (11-18)</option>
+          <option value="kecil">Kecil (3-10)</option>
+        `;
+      } else if (jenis === "ganjil-genap") {
+        opsiSelect.style.display = "block";
+        opsiAngka.style.display = "none";
+        opsiDropdown.innerHTML = `
+          <option value="ganjil">Ganjil</option>
+          <option value="genap">Genap</option>
+        `;
+      } else if (jenis === "angka") {
+        opsiSelect.style.display = "none";
+        opsiAngka.style.display = "block";
+      }
+    }
+
+    function lemparDadu() {
+      if (koin <= 0) {
+        alert("Koin kamu habis!");
+        return;
+      }
+
+      const jenis = document.getElementById("jenis").value;
+      let tebakan = null;
+      if (jenis === "angka") {
+        tebakan = parseInt(document.getElementById("angka").value);
+        if (isNaN(tebakan) || tebakan < 3 || tebakan > 18) {
+          alert("Masukkan angka antara 3 dan 18");
+          return;
+        }
+      } else {
+        tebakan = document.getElementById("opsi").value;
+      }
+
+      const d1 = Math.floor(Math.random() * 6);
+      const d2 = Math.floor(Math.random() * 6);
+      const d3 = Math.floor(Math.random() * 6);
+      const total = d1 + d2 + d3 + 3;
+
+      document.getElementById("dadu1").textContent = simbolDadu[d1];
+      document.getElementById("dadu2").textContent = simbolDadu[d2];
+      document.getElementById("dadu3").textContent = simbolDadu[d3];
+
+      let hasilText = `Total: ${total} - `;
+      hasilText += (total <= 10 ? "Kecil" : "Besar");
+      hasilText += total % 2 === 0 ? " & Genap" : " & Ganjil";
+
+      let benar = false;
+      if (jenis === "besar-kecil") {
+        benar = (tebakan === "besar" && total > 10) || (tebakan === "kecil" && total <= 10);
+      } else if (jenis === "ganjil-genap") {
+        benar = (tebakan === "ganjil" && total % 2 === 1) || (tebakan === "genap" && total % 2 === 0);
+      } else if (jenis === "angka") {
+        benar = (tebakan === total);
+      }
+
+      if (benar) {
+        const reward = (jenis === "angka") ? 100 : 10;
+        koin += reward;
+        hasilText += ` ✅ Menang! +${reward} koin`;
+      } else {
+        koin -= 10;
+        hasilText += ` ❌ Kalah! -10 koin`;
+      }
+
+      document.getElementById("hasil").textContent = hasilText;
+      document.getElementById("koin").textContent = koin;
+    }
+  </script>
+
+</body>
+</html>
